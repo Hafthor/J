@@ -96,11 +96,10 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
     private bool? isFalse = null;
     public bool IsNull => isNull ??= Length is 4 && Span.Span.SequenceEqual("null".AsSpan());
     private bool? isNull = null;
-    public bool IsValidNumber => isNumberValue ??= CheckNumberValid();
-    private bool? isNumberValue = null;
+    public bool IsValidNumber => isValidNumber ??= CheckIsValidNumber(Span.Span);
+    private bool? isValidNumber = null;
 
-    private bool CheckNumberValid() {
-        ReadOnlySpan<char> span = Span.Span;
+    private static bool CheckIsValidNumber(ReadOnlySpan<char> span) {
         int i = 0, len = span.Length;
 
         // Optional minus sign
@@ -113,10 +112,7 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
         }
 
         // consume digits before decimal point
-        while (i < Length && span[i] is >= '0' and <= '9') {
-            hasDigits = true;
-            i++;
-        }
+        for (; i < len && span[i] is >= '0' and <= '9'; i++) hasDigits = true;
 
         // optional decimal point followed by digits
         if (i < len && span[i] is '.')

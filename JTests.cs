@@ -18,6 +18,9 @@ public sealed class JTests {
         JLiteral age = (JLiteral)jObj["age"];
         Assert.AreEqual("30", age.ToString());
         Assert.IsTrue(age.IsValidNumber);
+        Assert.IsFalse(age.IsNull);
+        Assert.IsFalse(age.IsTrue);
+        Assert.IsFalse(age.IsFalse);
         JLiteral isStudent = (JLiteral)jObj["isStudent"];
         Assert.AreEqual("false", isStudent.ToString());
         Assert.IsTrue(isStudent.IsFalse);
@@ -31,6 +34,9 @@ public sealed class JTests {
         Assert.AreEqual("123 Main St", ((JString)address["street"]).String().ToString());
         Assert.AreEqual("Anytown", ((JString)address["city"]).String().ToString());
         Assert.AreEqual("12345", ((JString)address["zip"]).String().ToString());
+        Assert.AreEqual(jObj, address["zip"].Root);
+        Assert.AreEqual(0, jObj.Offset);
+        Assert.AreEqual(14, name.Offset);
     }
 
     [TestMethod]
