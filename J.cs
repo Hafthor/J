@@ -41,7 +41,8 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
         if (c == '"') return JString.Parse(span, parent);
         if (c == '{') return JObject.Parse(span, parent);
         if (c == '[') return JArray.Parse(span, parent);
-        if (c is >='a' and <='z' or >='A' and <='Z' or >='0' and <='9' or '-' or '.') return JLiteral.Parse(span, parent);
+        if (c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '.')
+            return JLiteral.Parse(span, parent);
         return JError.Create(span, parent,
             c is < ' ' or > '~'
                 ? $"Invalid value, unexpected character '\\u{(int)c:X04}' found."
@@ -75,9 +76,15 @@ public class JError(ReadOnlyMemory<char> span, JValue parent = null, string mess
     public override StringBuilder Serialize(StringBuilder sb) => sb;
 
     public static JError Create(ReadOnlyMemory<char> span, JValue parent = null, string message = null,
-        string consumeTo = " \t\r\n\"[{0123456789-.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz") {
+        string consumeTo = null) {
         int i = 0;
-        while (i < span.Length && !consumeTo.Contains(span.Span[i])) i++;
+        if (consumeTo == null)
+            while (i < span.Length && span.Span[i] is not (' ' or '\t' or '\r' or '\n' or '[' or '{' or '"'
+                       or >= '0' and <= '9' or >= 'a' and <= 'z' or >= 'A' and <= 'Z' or '-' or '.'))
+                i++;
+        else
+            while (i < span.Length && !consumeTo.Contains(span.Span[i]))
+                i++;
         return new JError(span[..i], parent, message);
     }
 }
@@ -131,7 +138,8 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
 
     public new static JValue Parse(ReadOnlyMemory<char> span, JValue parent = null) {
         int i = 0;
-        while (i < span.Length && span.Span[i] is >='a' and <='z' or >='A' and <='Z' or >='0' and <='9' or '-' or '.') i++;
+        while (i < span.Length &&
+               span.Span[i] is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '.') i++;
         return new JLiteral(span[..i], parent);
     }
 }
@@ -215,7 +223,7 @@ public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
         get => Items[index];
         set => Items[index] = value;
     }
-    
+
     public int IndexOf(JValue item) => Items.IndexOf(item);
     public void Insert(int index, JValue item) => Items.Insert(index, item);
     public void RemoveAt(int index) => Items.RemoveAt(index);
@@ -265,7 +273,8 @@ public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
     }
 }
 
-public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(span, parent), IDictionary<ReadOnlyMemory<char>, JValue>, IReadOnlyDictionary<ReadOnlyMemory<char>, JValue> {
+public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(span, parent),
+    IDictionary<ReadOnlyMemory<char>, JValue>, IReadOnlyDictionary<ReadOnlyMemory<char>, JValue> {
     Dictionary<ReadOnlyMemory<char>, JValue> Items { get; } = new(ReadOnlyMemoryComparer<char>.Default);
     public override string ToString() => Serialize(new()).ToString();
 
@@ -292,8 +301,10 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
     public JValue GetValueOrDefault(ReadOnlyMemory<char> key, JValue defaultValue) =>
         Items.GetValueOrDefault(key, defaultValue);
+
     public JValue GetValueOrDefault(string key, JValue defaultValue) =>
         Items.GetValueOrDefault(key.AsMemory(), defaultValue);
+
     public JValue GetValueOrDefault(JString key, JValue defaultValue) =>
         Items.GetValueOrDefault(key.String(), defaultValue);
 
@@ -313,7 +324,7 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
         return sb.Append('}');
     }
-    
+
     public void Add(ReadOnlyMemory<char> key, JValue value) => Items.Add(key, value);
     public void Add(string key, JValue value) => Items.Add(key.AsMemory(), value);
     public void Add(JString key, JValue value) => Items.Add(key.String(), value);
@@ -324,14 +335,22 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     public void Add(KeyValuePair<string, JValue> item) => Items.Add(item.Key.AsMemory(), item.Value);
     public void Add(KeyValuePair<JString, JValue> item) => Items.Add(item.Key.String(), item.Value);
     public void Clear() => Items.Clear();
-    public bool Contains(KeyValuePair<ReadOnlyMemory<char>, JValue> item) => Items.TryGetValue(item.Key, out var value) && value == item.Value;
-    public bool Contains(KeyValuePair<string, JValue> item) => Items.TryGetValue(item.Key.AsMemory(), out var value) && value == item.Value;
-    public bool Contains(KeyValuePair<JString, JValue> item) => Items.TryGetValue(item.Key.String(), out var value) && value == item.Value;
+
+    public bool Contains(KeyValuePair<ReadOnlyMemory<char>, JValue> item) =>
+        Items.TryGetValue(item.Key, out var value) && value == item.Value;
+
+    public bool Contains(KeyValuePair<string, JValue> item) =>
+        Items.TryGetValue(item.Key.AsMemory(), out var value) && value == item.Value;
+
+    public bool Contains(KeyValuePair<JString, JValue> item) =>
+        Items.TryGetValue(item.Key.String(), out var value) && value == item.Value;
 
     public void CopyTo(KeyValuePair<ReadOnlyMemory<char>, JValue>[] array, int arrayIndex) {
         foreach (KeyValuePair<ReadOnlyMemory<char>, JValue> item in Items) array[arrayIndex++] = item;
     }
-    public bool Remove(KeyValuePair<ReadOnlyMemory<char>, JValue> item) => Items.TryGetValue(item.Key, out JValue value) && value == item.Value && Items.Remove(item.Key);
+
+    public bool Remove(KeyValuePair<ReadOnlyMemory<char>, JValue> item) =>
+        Items.TryGetValue(item.Key, out JValue value) && value == item.Value && Items.Remove(item.Key);
 
     public bool Remove(KeyValuePair<string, JValue> item) => Items.TryGetValue(item.Key.AsMemory(), out JValue value) &&
                                                              value == item.Value && Items.Remove(item.Key.AsMemory());

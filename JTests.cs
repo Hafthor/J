@@ -6,7 +6,7 @@ namespace J;
 public sealed class JTests {
     [TestMethod]
     public void BasicSmokeTest() {
-        JValue value = JValue.Parse(JBenchmark.d.AsMemory());
+        JValue value = JValue.Parse(JBenchmark.D.AsMemory());
         Assert.IsNotNull(value);
         Assert.AreEqual(
             "{\"name\":\"John\",\"age\":30,\"isStudent\":false,\"scores\":[85,90,92],\"address\":{\"street\":\"123 Main St\",\"city\":\"Anytown\",\"zip\":\"12345\"}}",
