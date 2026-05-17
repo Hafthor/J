@@ -48,4 +48,40 @@ public sealed class JTests {
         Assert.IsNotNull(text);
         Assert.AreEqual("Line1\nLine2\tTabbed\\Backslash\"Quote\0᧺¯gú", text.String().ToString());
     }
+    
+    [TestMethod]
+    public void LiteralTests() {
+        var t = JValue.Parse("true".AsMemory()) as JLiteral;
+        var f = JValue.Parse("false".AsMemory()) as JLiteral;
+        var n = JValue.Parse("null".AsMemory()) as JLiteral;
+        var z = JValue.Parse("0".AsMemory()) as JLiteral;
+
+        Assert.IsTrue(t.IsTrue);
+        Assert.IsFalse(t.IsFalse);
+        Assert.IsFalse(t.IsNull);
+        Assert.IsFalse(t.IsValidNumber);
+        
+        Assert.IsFalse(f.IsTrue);
+        Assert.IsTrue(f.IsFalse);
+        Assert.IsFalse(f.IsNull);
+        Assert.IsFalse(f.IsValidNumber);
+        
+        Assert.IsFalse(n.IsTrue);
+        Assert.IsFalse(n.IsFalse);
+        Assert.IsTrue(n.IsNull);
+        Assert.IsFalse(n.IsValidNumber);
+        
+        Assert.IsFalse(z.IsTrue);
+        Assert.IsFalse(z.IsFalse);
+        Assert.IsFalse(z.IsNull);
+        Assert.IsTrue(z.IsValidNumber);
+        
+        Assert.IsTrue((JValue.Parse("-123.456e+789".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-.9e9".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsFalse((JValue.Parse("notaliteral".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-.e".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsFalse((JValue.Parse(".e1".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-0.e0".AsMemory()) as JLiteral).IsValidNumber);
+    }
 }

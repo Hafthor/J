@@ -135,7 +135,7 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
     public new static JValue Parse(ReadOnlyMemory<char> span, JValue parent = null) {
         int i = 0;
         while (i < span.Length &&
-               span.Span[i] is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '.') i++;
+               span.Span[i] is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '.' or '+') i++;
         return new JLiteral(span[..i], parent);
     }
 }
