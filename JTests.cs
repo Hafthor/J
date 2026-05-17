@@ -41,11 +41,11 @@ public sealed class JTests {
 
     [TestMethod]
     public void EscapeTest() {
-        string json = "{\"text\":\"Line1\\nLine2\\tTabbed\\\\Backslash\\\"Quote\"}";
+        string json = "{\"text\":\"Line1\\nLine2\\tTabbed\\\\Backslash\\\"Quote\\0\\u19Fa\\uAfg\\xfA\"}";
         JObject jObj = JValue.Parse(json.AsMemory()) as JObject;
         Assert.IsNotNull(jObj);
         JString text = jObj["text"] as JString;
         Assert.IsNotNull(text);
-        Assert.AreEqual("Line1\nLine2\tTabbed\\Backslash\"Quote", text.String().ToString());
+        Assert.AreEqual("Line1\nLine2\tTabbed\\Backslash\"Quote\0᧺¯gú", text.String().ToString());
     }
 }

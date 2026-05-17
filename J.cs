@@ -146,7 +146,7 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
     private ReadOnlyMemory<char> UnescapeIfNeeded(ReadOnlyMemory<char> span) {
         int i = 0;
-        for (; i < span.Length && span.Span[i] != '\\'; i++) ;
+        for (; i < span.Length && span.Span[i] is not '\\'; i++) ;
         if (i == span.Length) return span; // No escape sequences, return original span
         StringBuilder sb = new(span.Length);
         sb.Append(span.Span[..i++]);
@@ -158,7 +158,10 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
                 'n' => '\n',
                 'r' => '\r',
                 't' => '\t',
-                'u' => (char)HexParse(span.Span[i..(i += 4)]),
+                '0' => '\0',
+                'v' => '\v',
+                'u' => (char)HexParse(span.Span, ref i, 4),
+                'x' => (char)HexParse(span.Span, ref i, 2),
                 _ => c
             });
             int s = i;
@@ -169,16 +172,16 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
         return sb.ToString().AsMemory();
     }
 
-    private static int HexParse(ReadOnlySpan<char> hex) {
-        int result = 0;
-        for (int i = 0; i < hex.Length; i++) {
-            char c = hex[i];
-            result = c switch {
-                >= '0' and <= '9' => (result << 4) + c - '0',
-                >= 'A' and <= 'F' => (result << 4) + c - 'A' + 10,
-                >= 'a' and <= 'f' => (result << 4) + c - 'a' + 10,
-                _ => result
-            };
+    private static int HexParse(ReadOnlySpan<char> hex, ref int start, int length) {
+        int result = 0, end = Math.Min(start + length, hex.Length);
+        for (; start < end; start++) {
+            char c = hex[start];
+            if (c is >= '0' and <= '9')
+                result = (result << 4) + (c & 15);
+            else if (c is >= 'a' and <= 'f' or >= 'A' and <= 'F')
+                result = (result << 4) + (c & 15) + 9;
+            else
+                break;
         }
 
         return result;
@@ -198,7 +201,11 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
             if (c is '\\') {
                 needsUnescape = true;
-                if (span.Span[i++] == 'u') i += 4;
+                if ((c = span.Span[i++]) is 'u' or 'x')
+                    for (int e = Math.Min(i + (c == 'u' ? 4 : 2), span.Length);
+                         i < e && span.Span[i] is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F';
+                         i++)
+                        ;
             }
         }
 
