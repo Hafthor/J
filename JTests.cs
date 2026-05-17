@@ -36,7 +36,7 @@ public sealed class JTests {
         Assert.AreEqual("12345", ((JString)address["zip"]).String().ToString());
         Assert.AreEqual(jObj, address["zip"].Root);
         Assert.AreEqual(0, jObj.Offset);
-        Assert.AreEqual(14, name.Offset);
+        Assert.AreEqual(13 + Environment.NewLine.Length, name.Offset);
     }
 
     [TestMethod]

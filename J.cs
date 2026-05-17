@@ -7,7 +7,6 @@ namespace com.hafthor.J;
 
 public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
     public ReadOnlyMemory<char> Span { get; protected set; } = span;
-    public JValue Parent { get; } = parent;
     public int Length => Span.Length;
 
     public int Offset => GetOffset();
@@ -20,6 +19,7 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
             ref MemoryMarshal.GetReference(Span.Span)) / sizeof(char);
     }
 
+    public JValue Parent { get; } = parent;
     public JValue Root => root ??= GetRoot();
     private JValue root = null;
 
@@ -90,11 +90,11 @@ public class JError(ReadOnlyMemory<char> span, JValue parent = null, string mess
 }
 
 public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(span, parent) {
-    public bool IsTrue => isTrue ??= Length is 4 && Span.Span.SequenceEqual("true".AsSpan());
+    public bool IsTrue => isTrue ??= Span.Span.SequenceEqual("true".AsSpan());
     private bool? isTrue = null;
-    public bool IsFalse => isFalse ??= Length is 5 && Span.Span.SequenceEqual("false".AsSpan());
+    public bool IsFalse => isFalse ??= Span.Span.SequenceEqual("false".AsSpan());
     private bool? isFalse = null;
-    public bool IsNull => isNull ??= Length is 4 && Span.Span.SequenceEqual("null".AsSpan());
+    public bool IsNull => isNull ??= Span.Span.SequenceEqual("null".AsSpan());
     private bool? isNull = null;
     public bool IsValidNumber => isValidNumber ??= CheckIsValidNumber(Span.Span);
     private bool? isValidNumber = null;
@@ -215,7 +215,7 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
 public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
     : JHolder(span, parent), IList<JValue>, IReadOnlyCollection<JValue> {
-    List<JValue> Items { get; } = new();
+    List<JValue> Items { get; } = [];
     public override string ToString() => Serialize(new()).ToString();
     public IEnumerator<JValue> GetEnumerator() => Items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
