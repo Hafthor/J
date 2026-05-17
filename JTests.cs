@@ -76,12 +76,12 @@ public sealed class JTests {
         Assert.IsFalse(z.IsNull);
         Assert.IsTrue(z.IsValidNumber);
         
-        Assert.IsTrue((JValue.Parse("-123.456e+789".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsTrue((JValue.Parse("-.9e9".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsFalse((JValue.Parse("notaliteral".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsFalse((JValue.Parse("-.e".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsFalse((JValue.Parse("-".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsFalse((JValue.Parse(".e1".AsMemory()) as JLiteral).IsValidNumber);
-        Assert.IsTrue((JValue.Parse("-0.e0".AsMemory()) as JLiteral).IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-123.456e+789".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-.9e9".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("notaliteral".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-.e".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse(".e1".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-0.e0".AsMemory()) as JLiteral)?.IsValidNumber);
     }
 }
