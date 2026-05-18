@@ -1,6 +1,4 @@
-﻿using com.hafthor.J;
-
-namespace J;
+﻿namespace com.hafthor.J;
 
 [TestClass]
 public sealed class JTests {

@@ -1,5 +1,4 @@
 using BenchmarkDotNet.Attributes;
-using J;
 
 // ReSharper disable once CheckNamespace
 namespace com.hafthor.J;
