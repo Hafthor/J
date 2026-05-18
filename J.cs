@@ -15,7 +15,7 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
     /// The memory that points to the original unparsed JSON string.
     /// </summary>
     public ReadOnlyMemory<char> Span { get; protected set; } = span;
-    
+
     /// <summary>
     /// The length of the original unparsed JSON string.
     /// </summary>
@@ -25,6 +25,7 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
     /// The offset of this value in the original root unparsed JSON string.
     /// </summary>
     public int Offset => GetOffset();
+
     private int offset = -1;
 
     private int GetOffset() {
@@ -38,11 +39,12 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
     /// The parent value of this value, or null if this is the root value.
     /// </summary>
     public JValue Parent { get; } = parent;
-    
+
     /// <summary>
     /// The root value of this value, which is the top-level value in the JSON structure.
     /// </summary>
     public JValue Root => root ??= GetRoot();
+
     private JValue root = null;
 
     private JValue GetRoot() {
@@ -55,6 +57,7 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
     /// The string representation of this value.
     /// </summary>
     public override string ToString() => toString ??= Span.ToString();
+
     private string toString = null;
 
     /// <summary>
@@ -146,13 +149,13 @@ public class JError(ReadOnlyMemory<char> span, JValue parent = null, string mess
     /// The error message associated with this error.
     /// </summary>
     public string Message => message;
-    
+
     /// <summary>
     /// The unique identifier for this error, which can be used to distinguish it from other errors.
     /// </summary>
     /// <remarks>Useful for use as a key in a dictionary that parsed with errors.</remarks>
     public string Key { get; } = $"JError:{Guid.NewGuid()}";
-    
+
     /// <summary>
     /// Serializes this error to a JSON string.
     /// </summary>
@@ -195,20 +198,23 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
     /// Returns true if this literal represents the JSON true value, false otherwise.
     /// </summary>
     public bool IsTrue => isTrue ??= Span.Span.SequenceEqual("true".AsSpan());
+
     private bool? isTrue = null;
-    
+
     /// <summary>
     /// Returns true if this literal represents the JSON false value, false otherwise.
     /// </summary>
     public bool IsFalse => isFalse ??= Span.Span.SequenceEqual("false".AsSpan());
+
     private bool? isFalse = null;
-    
+
     /// <summary>
     /// Returns true if this literal represents the JSON null value, false otherwise.
     /// </summary>
     public bool IsNull => isNull ??= Span.Span.SequenceEqual("null".AsSpan());
+
     private bool? isNull = null;
-    
+
     /// <summary>
     /// Returns true if this literal represents a valid JSON number, false otherwise.
     /// </summary>
@@ -217,6 +223,7 @@ public class JLiteral(ReadOnlyMemory<char> span, JValue parent = null) : JValue(
     /// follows the JSON number syntax.
     /// </remarks>
     public bool IsValidNumber => isValidNumber ??= CheckIsValidNumber(Span.Span);
+
     private bool? isValidNumber = null;
 
     private static bool CheckIsValidNumber(ReadOnlySpan<char> span) {
@@ -279,6 +286,7 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// Parses a JSON string into a normal string value, unescaping any escape sequences in the process.
     /// </summary>
     public ReadOnlyMemory<char> String() => unescaped ??= UnescapeIfNeeded(Inner);
+
     private ReadOnlyMemory<char>? unescaped = null;
 
     private ReadOnlyMemory<char> UnescapeIfNeeded(ReadOnlyMemory<char> span) {
@@ -371,23 +379,24 @@ public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
     /// The list of items in this JSON array.
     /// </summary>
     List<JValue> Items { get; } = [];
-    
+
     /// <summary>
     /// Serializes the JSON array back into a JSON string, including brackets and commas.
     /// </summary>
     public override string ToString() => Serialize(new()).ToString();
-    
+
     /// <summary>
     /// Get enumerator for iterating over items in the JSON array.
     /// </summary>
     public IEnumerator<JValue> GetEnumerator() => Items.GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    
+
     /// <summary>
     /// Gets the number of items in the JSON array.
     /// </summary>
     public int Count => Items.Count;
-    
+
     /// <summary>
     /// Returns false since JSON arrays are mutable.
     /// </summary>
@@ -408,45 +417,45 @@ public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
     /// <param name="item">The item to find.</param>
     /// <returns>The index of the item, or -1 if not found.</returns>
     public int IndexOf(JValue item) => Items.IndexOf(item);
-    
+
     /// <summary>
     /// Inserts an item into the JSON array at the specified index.
     /// </summary>
     /// <param name="index">The index at which to insert the item.</param>
     /// <param name="item">The item to insert.</param>
     public void Insert(int index, JValue item) => Items.Insert(index, item);
-    
+
     /// <summary>
     /// Removes the item at the specified index from the JSON array.
     /// </summary>
     /// <param name="index">The index of the item to remove.</param>
     public void RemoveAt(int index) => Items.RemoveAt(index);
-    
+
     /// <summary>
     /// Adds an item to the end of the JSON array.
     /// </summary>
     /// <param name="item">The item to add.</param>
     public void Add(JValue item) => Items.Add(item);
-    
+
     /// <summary>
     /// Removes all items from the JSON array.
     /// </summary>
     public void Clear() => Items.Clear();
-    
+
     /// <summary>
     /// Determines whether the JSON array contains a specific item.
     /// </summary>
     /// <param name="item">The item to check for.</param>
     /// <returns>True if the item is found, otherwise false.</returns>
     public bool Contains(JValue item) => Items.Contains(item);
-    
+
     /// <summary>
     /// Copies the elements of the JSON array to an array, starting at a particular array index.
     /// </summary>
     /// <param name="array">The destination array.</param>
     /// <param name="arrayIndex">The starting index in the destination array.</param>
     public void CopyTo(JValue[] array, int arrayIndex) => Items.CopyTo(array, arrayIndex);
-    
+
     /// <summary>
     /// Removes the first occurrence of a specific item from the JSON array.
     /// </summary>
@@ -520,7 +529,7 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// The dictionary of key-value pairs in this JSON object.
     /// </summary>
     Dictionary<ReadOnlyMemory<char>, JValue> Items { get; } = new(ReadOnlyMemoryComparer<char>.Default);
-    
+
     /// <summary>
     /// Serializes the JSON object back into a JSON string, including braces, quotes, colons, and commas.
     /// </summary>
@@ -557,22 +566,24 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// Number of key-value pairs in the JSON object.
     /// </summary>
     public int Count => Items.Count;
-    
+
     /// <summary>
     /// Returns false since JSON objects are mutable.
     /// </summary>
     public bool IsReadOnly => false;
-    
+
     /// <summary>
     /// Returns an enumerable collection of the keys in the JSON object.
     /// </summary>
     public IEnumerable<ReadOnlyMemory<char>> Keys => Items.Keys;
+
     ICollection<ReadOnlyMemory<char>> IDictionary<ReadOnlyMemory<char>, JValue>.Keys => Items.Keys;
-    
+
     /// <summary>
     /// Returns an enumerable collection of the values in the JSON object.
     /// </summary>
     public IEnumerable<JValue> Values => Items.Values;
+
     ICollection<JValue> IDictionary<ReadOnlyMemory<char>, JValue>.Values => Items.Values;
 
     /// <summary>
@@ -582,7 +593,7 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// <param name="value">The value associated with the key, if found.</param>
     /// <returns>True if the key was found, otherwise false.</returns>
     public bool TryGetValue(ReadOnlyMemory<char> key, out JValue value) => Items.TryGetValue(key, out value);
-    
+
     /// <summary>
     /// Attempts to get the value associated with the specified key.
     /// </summary>
@@ -590,7 +601,7 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// <param name="value">The value associated with the key, if found.</param>
     /// <returns>True if the key was found, otherwise false.</returns>
     public bool TryGetValue(string key, out JValue value) => Items.TryGetValue(key.AsMemory(), out value);
-    
+
     /// <summary>
     /// Attempts to get the value associated with the specified key.
     /// </summary>
@@ -632,26 +643,27 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// <param name="key">Key to check for existence.</param>
     /// <returns>True if the key exists in the JSON object, otherwise false.</returns>
     public bool ContainsKey(ReadOnlyMemory<char> key) => Items.ContainsKey(key);
-    
+
     /// <summary>
     /// Determines whether the JSON object contains the specified key.
     /// </summary>
     /// <param name="key">Key to check for existence.</param>
     /// <returns>True if the key exists in the JSON object, otherwise false.</returns>
     public bool ContainsKey(string key) => Items.ContainsKey(key.AsMemory());
-    
+
     /// <summary>
     /// Determines whether the JSON object contains the specified key.
     /// </summary>
     /// <param name="key">Key to check for existence.</param>
     /// <returns>True if the key exists in the JSON object, otherwise false.</returns>
     public bool ContainsKey(JString key) => Items.ContainsKey(key.String());
-    
+
     /// <summary>
     /// Gets the enumerator for iterating through the key-value pairs in the JSON object.
     /// </summary>
     /// <returns></returns>
     public IEnumerator<KeyValuePair<ReadOnlyMemory<char>, JValue>> GetEnumerator() => Items.GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
@@ -677,60 +689,60 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
     /// <param name="key">Key to add to the JSON object.</param>
     /// <param name="value">Value to associate with the key.</param>
     public void Add(ReadOnlyMemory<char> key, JValue value) => Items.Add(key, value);
-    
+
     /// <summary>
     /// Adds a key-value pair to the JSON object.
     /// </summary>
     /// <param name="key">Key to add to the JSON object.</param>
     /// <param name="value">Value to associate with the key.</param>
     public void Add(string key, JValue value) => Items.Add(key.AsMemory(), value);
-    
+
     /// <summary>
     /// Adds a key-value pair to the JSON object.
     /// </summary>
     /// <param name="key">Key to add to the JSON object.</param>
     /// <param name="value">Value to associate with the key.</param>
     public void Add(JString key, JValue value) => Items.Add(key.String(), value);
-    
+
     /// <summary>
     /// Removes the value with the specified key from the JSON object.
     /// </summary>
     /// <param name="key">Key to remove from the JSON object.</param>
     /// <returns>True if the key was found and removed, false otherwise.</returns>
     public bool Remove(ReadOnlyMemory<char> key) => Items.Remove(key);
-    
+
     /// <summary>
     /// Removes the value with the specified key from the JSON object.
     /// </summary>
     /// <param name="key">Key to remove from the JSON object.</param>
     /// <returns>True if the key was found and removed, false otherwise.</returns>
     public bool Remove(string key) => Items.Remove(key.AsMemory());
-    
+
     /// <summary>
     /// Removes the value with the specified key from the JSON object.
     /// </summary>
     /// <param name="key">Key to remove from the JSON object.</param>
     /// <returns>True if the key was found and removed, false otherwise.</returns>
     public bool Remove(JString key) => Items.Remove(key.String());
-    
+
     /// <summary>
     /// Adds a key-value pair to the JSON object.
     /// </summary>
     /// <param name="item">Key-value pair to add to the JSON object.</param>
     public void Add(KeyValuePair<ReadOnlyMemory<char>, JValue> item) => Items.Add(item.Key, item.Value);
-    
+
     /// <summary>
     /// Adds a key-value pair to the JSON object.
     /// </summary>
     /// <param name="item">Key-value pair to add to the JSON object.</param>
     public void Add(KeyValuePair<string, JValue> item) => Items.Add(item.Key.AsMemory(), item.Value);
-    
+
     /// <summary>
     /// Adds a key-value pair to the JSON object.
     /// </summary>
     /// <param name="item">Key-value pair to add to the JSON object.</param>
     public void Add(KeyValuePair<JString, JValue> item) => Items.Add(item.Key.String(), item.Value);
-    
+
     /// <summary>
     /// Removes all key-value pairs from the JSON object.
     /// </summary>
