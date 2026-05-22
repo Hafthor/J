@@ -18,10 +18,10 @@ public sealed class JTests {
 
     [TestMethod]
     public void BasicSmokeTest() {
-        JValue value = JValue.Parse(SampleDoc.AsMemory());
+        JValue value = JValue.Parse(SampleDoc);
         Assert.IsNotNull(value);
         Assert.AreEqual(
-            "{\"name\":\"John\",\"age\":30,\"isStudent\":false,\"scores\":[85,90,92],\"address\":{\"street\":\"123 Main St\",\"city\":\"Anytown\",\"zip\":\"12345\"}}",
+            """{"name":"John","age":30,"isStudent":false,"scores":[85,90,92],"address":{"street":"123 Main St","city":"Anytown","zip":"12345"}}""",
             value.ToString());
         JObject jObj = (JObject)value;
         Assert.HasCount(5, jObj);
@@ -58,8 +58,8 @@ public sealed class JTests {
 
     [TestMethod]
     public void EscapeTest() {
-        string json = "{\"text\":\"Line1\\nLine2\\tTabbed\\\\Backslash\\\"Quote\\0\\u19Fa\\uAfg\\xfA\"}";
-        JObject jObj = JValue.Parse(json.AsMemory()) as JObject;
+        string json = """{"text":"Line1\nLine2\tTabbed\\Backslash\"Quote\0\u19Fa\uAfg\xfA"}""";
+        JObject jObj = JValue.Parse(json) as JObject;
         Assert.IsNotNull(jObj);
         JString text = jObj["text"] as JString;
         Assert.IsNotNull(text);
@@ -68,10 +68,10 @@ public sealed class JTests {
 
     [TestMethod]
     public void LiteralTests() {
-        var t = JValue.Parse("true".AsMemory()) as JLiteral;
-        var f = JValue.Parse("false".AsMemory()) as JLiteral;
-        var n = JValue.Parse("null".AsMemory()) as JLiteral;
-        var z = JValue.Parse("0".AsMemory()) as JLiteral;
+        var t = JValue.Parse("true") as JLiteral;
+        var f = JValue.Parse("false") as JLiteral;
+        var n = JValue.Parse("null") as JLiteral;
+        var z = JValue.Parse("0") as JLiteral;
 
         Assert.IsTrue(t.IsTrue);
         Assert.IsFalse(t.IsFalse);
@@ -93,12 +93,12 @@ public sealed class JTests {
         Assert.IsFalse(z.IsNull);
         Assert.IsTrue(z.IsValidNumber);
 
-        Assert.IsTrue((JValue.Parse("-123.456e+789".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsTrue((JValue.Parse("-.9e9".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsFalse((JValue.Parse("notaliteral".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsFalse((JValue.Parse("-.e".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsFalse((JValue.Parse("-".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsFalse((JValue.Parse(".e1".AsMemory()) as JLiteral)?.IsValidNumber);
-        Assert.IsTrue((JValue.Parse("-0.e0".AsMemory()) as JLiteral)?.IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-123.456e+789") as JLiteral)?.IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-.9e9") as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("notaliteral") as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-.e") as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse("-") as JLiteral)?.IsValidNumber);
+        Assert.IsFalse((JValue.Parse(".e1") as JLiteral)?.IsValidNumber);
+        Assert.IsTrue((JValue.Parse("-0.e0") as JLiteral)?.IsValidNumber);
     }
 }

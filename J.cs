@@ -90,6 +90,17 @@ public abstract class JValue(ReadOnlyMemory<char> span, JValue parent = null) {
                 ? $"Invalid value, unexpected character '\\u{(int)c:X04}' found."
                 : $"Invalid value, unexpected character '{c}' found.");
     }
+    
+    /// <summary>
+    /// Deserializes a string into a JValue.
+    /// </summary>
+    /// <param name="json">The string to parse.</param>
+    /// <param name="parent">Parent JValue, if any.</param>
+    /// <returns>A JValue of the type that represents the string parsed.</returns>
+    /// <remarks>
+    /// Caller can use the returned JValue's .Length to know how many characters were consumed during parsing.
+    /// </remarks>
+    public static JValue Parse(string json, JValue parent = null) => Parse(json.AsMemory(), parent);
 }
 
 /// <summary>
@@ -136,6 +147,17 @@ public class JWhitespace(ReadOnlyMemory<char> span, JValue parent = null) : JVal
         while (i < span.Length && span.Span[i] is ' ' or '\n' or '\r' or '\t') i++;
         return new JWhitespace(span[..i], parent);
     }
+    
+    /// <summary>
+    /// Parses a JSON string into a JWhitespace.
+    /// </summary>
+    /// <param name="json">The JSON string to parse.</param>
+    /// <param name="parent">Parent JValue, if any.</param>
+    /// <returns>A JWhitespace instance representing the parsed whitespace.</returns>
+    /// <remarks>
+    /// Caller can use the returned JValue's .Length to know how many characters were consumed during parsing.
+    /// </remarks>
+    public new static JValue Parse(string json, JValue parent = null) => Parse(json.AsMemory(), parent);
 }
 
 /// <summary>
@@ -186,6 +208,20 @@ public class JError(ReadOnlyMemory<char> span, JValue parent = null, string mess
                 i++;
         return new JError(span[..i], parent, message);
     }
+    
+    /// <summary>
+    /// Creates a new JError instance with the specified error message.
+    /// </summary>
+    /// <param name="json">The JSON string that caused the error.</param>
+    /// <param name="parent">Parent JValue, if any.</param>
+    /// <param name="message">Error message associated with the error.</param>
+    /// <param name="consumeTo">Optional string of characters to consume until before creating the error.</param>
+    /// <returns>A JError instance representing the parsing error.</returns>
+    /// <remarks>
+    /// Caller can use the returned JValue's .Length to know how many characters were consumed during parsing.
+    /// </remarks>
+    public static JError Create(string json, JValue parent = null, string message = null, string consumeTo = null) =>
+        Create(json.AsMemory(), parent, message, consumeTo);
 }
 
 /// <summary>
@@ -366,6 +402,18 @@ public class JString(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
 
         return new JError(span, parent, "Invalid string, closing quote not found.");
     }
+    
+    /// <summary>
+    /// Parses a JSON string value from the input span, handling escape sequences and ensuring proper string
+    /// termination.
+    /// </summary>
+    /// <param name="json">The JSON string to parse.</param>
+    /// <param name="parent">Parent JValue, if any.</param>
+    /// <returns>A JString representing the parsed JSON string.</returns>
+    /// <remarks>
+    /// Caller can use the returned JValue's .Length to know how many characters were consumed during parsing.
+    /// </remarks>
+    public new static JValue Parse(string json, JValue parent = null) => Parse(json.AsMemory(), parent);
 }
 
 /// <summary>
@@ -516,7 +564,19 @@ public class JArray(ReadOnlyMemory<char> span, JValue parent = null)
         arr.Items.Add(new JError(span[i..], arr, "Invalid array, closing bracket not found."));
         return arr;
     }
+
+    /// <summary>
+    /// Parses a JSON array from the input span, handling nested structures and ensuring proper array termination.
+    /// </summary>
+    /// <param name="json">The string containing the JSON array to parse.</param>
+    /// <param name="parent">The parent JSON value, if any.</param>
+    /// <returns>The parsed JArray instance.</returns>
+    /// <remarks>
+    /// Caller can use the returned JValue's .Length to know how many characters were consumed during parsing.
+    /// </remarks>
+    public new static JValue Parse(string json, JValue parent = null) => Parse(json.AsMemory(), parent);
 }
+
 
 /// <summary>
 /// Represents a JSON object value.
@@ -861,4 +921,15 @@ public class JObject(ReadOnlyMemory<char> span, JValue parent = null) : JHolder(
         obj.Items.Add(closeErr.Key.AsMemory(), closeErr);
         return obj;
     }
+    
+    /// <summary>
+    /// Parses a JSON string into a JObject.
+    /// </summary>
+    /// <param name="json">The JSON string to parse.</param>
+    /// <param name="parent">The parent JSON value, if any.</param>
+    /// <returns>The parsed JObject.</returns>
+    /// <remarks>
+    /// Caller can use returned JValue's .Length property to determine how many characters were consumed during parsing.
+    /// </remarks>
+    public new static JValue Parse(string json, JValue parent = null) => Parse(json.AsMemory(), parent);
 }

@@ -5,11 +5,11 @@ namespace com.hafthor.J;
 
 [MemoryDiagnoser(false)]
 public class JBenchmark {
-    private static readonly JValue J = JValue.Parse(JTests.SampleDoc.AsMemory());
+    private static readonly JValue J = JValue.Parse(JTests.SampleDoc);
     //private static readonly object J2 = Newtonsoft.Json.JsonConvert.DeserializeObject(JTests.SampleDoc);
 
     [Benchmark] // 984.9ns 4936B
-    public JValue Parse() => JValue.Parse(JTests.SampleDoc.AsMemory());
+    public JValue Parse() => JValue.Parse(JTests.SampleDoc);
 
     [Benchmark] // 147.4ns 824B
     public string Serialize() => J.ToString();

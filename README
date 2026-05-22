@@ -1,11 +1,9 @@
 Fast JSON Parser for .NET
 
-39% less time than Newtonsoft.Json using 31% less memory. (Comparison measured on an M2 MacBook Pro Max.)
+39% less time than Newtonsoft.Json using 31% less memory. (As measured on M2 MacBook Pro Max.)
 
 Uses ReadOnlyMemory<char> instead of string for speed and memory efficiency.
 
-Kept simple. No dependencies. No support for JSONPath or LINQ to JSON. No support for deserialization to .NET objects
-or serialization from them. No support for JSON5 or JSON Schema. Only single file needed (J.cs).
-
-Does not parse JSON literals to value types, such as booleans, null or numbers. Since JSON numbers are not bounded by
-rules of IEEE 754 floating point, they can be arbitrarily large or precise.
+No dependencies. No support for JSONPath, JSON Schema or LINQ to JSON. No support for deserialization to .NET objects
+or serialization from them. Does not parse JSON literals to value types, such as booleans, null or numbers. Since JSON
+numbers are not bounded by rules of IEEE 754 floating point, they can be arbitrarily large or precise.
